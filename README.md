@@ -22,7 +22,7 @@ avg-nC-nR, avg-C-nR, avg-nC-R, avg-C-R, bi-nC-nR, bi-C-nR, bi-nC-R, bi-C-R, d1_p
 ## Description for the code and data
 | File name | Description |
 | ----------- | ----------- |
-| taskOrder_02232022.m | Generating the order of 2x2 tasks for different subjects |
+| taskOrder_02232022.m | Generating the order of 2x2 tasks for different subjects[^1] |
 | taskOrder_02232022.txt | The order of 2x2 tasks for the 16 subjects |
 | corsiOrder_02222022.m | Generating the tFile of differnt trial in each task |
 | CorsiRotation_05112022.m | Main analyzation for the reaching direction error, reaching path length, movement duration |
@@ -31,3 +31,5 @@ avg-nC-nR, avg-C-nR, avg-nC-R, avg-C-R, bi-nC-nR, bi-C-nR, bi-nC-R, bi-C-R, d1_p
 | rdata.csv | Data file for the Repeated anova in R |
 | LearningCurve_05122022.m | Learning curve of bimanual mapping represented by normalized path length by one subject|
 | LearningCurve.mat | Data file for running LearningCurve_05122022.m |
+
+[^1]: Subjects with even number started with bimanual tasks. Subjects with odd number started with average tasks.
