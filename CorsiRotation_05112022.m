@@ -15,74 +15,75 @@ space = 6;
 % 'bi' as the bimanual mapping, 'C''nC' refers to Corsi or no-Corsi,
 % 'R''nR' refers to Rotation or no-Rotation.
 
-% folder = 'Data/subject/subject/';
-% subj_name = {'subj03','subj04','subj05','subj06','subj07','subj08','subj09','subj10','subj11','subj12','subj13','subj14','subj15','subj16','subj17','subj18'};
-% data = loadDataR(folder,subj_name,delayStep);
-% toc
+folder = 'Data/';
+subj_name = {'subj03','subj04','subj05','subj06','subj07','subj08','subj09','subj10','subj11','subj12','subj13','subj14','subj15','subj16','subj17','subj18'};
+data = loadDataR(folder,subj_name,delayStep);
+toc
 % save ThesisData
 %%
-load ThesisData
+% load ThesisData
 colors = [0 0 0
           128 128 128
           255 69 0
           255 165 0]./255;
 Nsubj = length(subj_name);
-disp('Done')
 
 %
 t = {'avg_nC_nR','avg_nC_R','avg_C_nR','avg_C_R','bi_nC_nR','bi_nC_R','bi_C_nR','bi_C_R'};
 % Mental Rotation (MR), Spatial Working Memory (SWM)
-t_name = {'avg Baseline','avg MR','avg SWM','avg SWM+MR','bi Baselie','bi MR','bi SWM','bi SWM+MR'};
+t_name = {'avg Baseline','avg MR','avg SWM','avg SWM+MR','bi Baseline','bi MR','bi SWM','bi SWM+MR'};
 
-% Figure 4. the histogram of reaching direction from one participant
-for i = 1
-    figure, hold on
-    title(subj_name{i})
-    xlim([-180 180]), ylim([0 .05]); 
-    for j = 1:4
-        ck = linspace(.5,1,4);
-        s_error = data{1, 1}.(t{j}).error * 180 / pi;
-        pts = [-180:.1:180];
-        fks = ksdensity(s_error, pts,'Bandwidth',10);
-        plot(pts, fks, 'LineWidth', 2, 'color',[0 ck(j) 0]);
-    end
-    for j = 5:8
-        ck = linspace(.5,1,4);
-        s_error = data{1, 1}.(t{j}).error * 180 / pi;
-        pts = [-180:.1:180];
-        fks = ksdensity(s_error, pts,'Bandwidth',10);
-        plot(pts, fks, 'LineWidth', 2, 'color',[1 ck(j-4) 0]);
-    end
-    % ylabel('Error of initial direction')
-    plot(-90*[1,1],[0,.04]);
-    plot(90*[1,1],[0,.04]);
-    plot(0*[1,1],[0,.04]);
-    xlabel('Reaching direction error')
-    xticks([-180, -90, 0, 90, 180])
-    legend(t_name);
-    hold off
-end
+%%
+subj = 1; % subject to be analyzed
 
-% Figure 3. the scater plot of reaching angle from one participant
-for i = 1
-    figure, hold on
-    for j = 1:8
-        ideal_angle = data{1, i}.(t{j}).idealAngle;
-        reach_angle = data{1, i}.(t{j}).reachAngle;
-        subplot(2,4,j), plot(ideal_angle,reach_angle,'.','MarkerSize',5)
-        xlabel('Ideal reaching angle')
-        ylabel('Actual reaching angle')
-        daspect([1 1 1])
-        xlim([-4 4]),ylim([-4 4]); 
-        legend(subj_name{i});
-        title(t_name{j})
-    end
-    hold off
+% probability density of reach direction error from one participant
+figure(1); clf; hold on
+title(subj_name{subj})
+ck = linspace(.5,1,4);
+pts = -180:.1:180;
+for j = 1:4
+    s_error = data{subj}.(t{j}).error * 180 / pi;
+    fks = ksdensity(s_error, pts,'Bandwidth',10);
+    plot(pts, fks, 'LineWidth', 2, 'color',[0 ck(j) 0]);
 end
+for j = 5:8
+    s_error = data{subj}.(t{j}).error * 180 / pi;
+    fks = ksdensity(s_error, pts,'Bandwidth',10);
+    plot(pts, fks, 'LineWidth', 2, 'color',[1 ck(j-4) 0]);
+end
+plot(-90*[1,1],[0,.04]);
+plot(90*[1,1],[0,.04]);
+plot(0*[1,1],[0,.04]);
+xlabel('Reach direction error')
+xticks(-180:90:180)
+axis([-180 180 0 .05])
+legend(t_name)
+set(gca,'TickDir','out')
+hold off
+
+% reach direction vs target direction from one participant
+figure(2); clf; hold on
+for j = 1:8
+    target_angle = data{subj}.(t{j}).idealAngle * 180/pi;
+    reach_angle = data{subj}.(t{j}).reachAngle * 180/pi;
+    subplot(2,4,j); hold on
+    plot([-185 185], [-185 185], 'k')
+    plot(target_angle,reach_angle,'.r','MarkerSize',10)
+    xlabel('Target direction')
+    ylabel('Initial cursor direction')
+    daspect([1 1 1])
+    axis([-185 185 -185 185])
+    xticks(-180:90:180)
+    yticks(-180:90:180)
+    title(t_name{j})
+    set(gca,'TickDir','out')
+    box off
+end
+hold off
 %% New figure 6. Reaching direction, path length, movement duration
 
-ept_sd = {}; 
-ept_wt = {}; 
+ept_sd = {};
+ept_wt = {};
 ept_se = {};
 ept_mn = {};
 for j = 1:8
@@ -93,66 +94,31 @@ for j = 1:8
     ept_task_wt = zeros(1,3);
     % collecting the data from all subj into dataset
     for i = 1:16
-        error_subj = mean(data{1, i}.(t{j}).error);
+        error_subj = mean(data{i}.(t{j}).error);
         error_sum = [error_sum error_subj]; % collecting the mean reaching direction error from all subj into dataset
-        pathLength_subj = mean(data{1, i}.(t{j}).pathLength);
+        pathLength_subj = mean(data{i}.(t{j}).pathLength);
         pathLength_sum = [pathLength_sum pathLength_subj]; % collecting the mean path length from all subj into dataset
-        reachTime_subj = mean(data{1, i}.(t{j}).timeReach);
+        reachTime_subj = mean(data{i}.(t{j}).timeReach);
         reachTime_sum = [reachTime_sum reachTime_subj]; % collecting the mean movement duration from all subj into dataset
     end
-    ept = {error_sum, pathLength_sum, reachTime_sum}; % collecting the three dataset into the cell 'ept'
-    % calculating the sigma of reaching direction error
-    for k = 1:3
-        samples = ept{k};
-        if isrow(samples)
-            samples = samples';
-        end
-        % set values for initial parameters for optimization
-        muInit = 0; % mean of von Mises distribution
-        kappaInit = 1; % concentration parameter of von Mises
-        weightInit = 0.9; % relative weight of von Mises and uniform distributions
+    ept = [error_sum' * 180/pi, pathLength_sum', reachTime_sum']; % collecting the three dataset into the cell 'ept'
 
-        % fit model
-        log_likelihood = @(params) calc_likelihood(params, samples);
-        paramsInit = [muInit kappaInit weightInit]; % set parameters to current values of mu and kappa
-        params_opt = fmincon(log_likelihood, paramsInit, [], [], [], [], [-pi 0 0], [pi 500 1]);
-
-        % store fitted parameter values
-        mu_opt = params_opt(1);
-        kappa_opt = params_opt(2);
-        weight_opt = params_opt(3);
-
-        % compute circular standard deviation
-        R = besseli(1,params_opt(2))/besseli(0,params_opt(2));
-        sd = sqrt(-2 * log(R)); % circular standard deviation
-        
-        % save the data of std of the error, pathLength, time into ept_task_sd
-        if k ==1
-            ept_task_sd(k) = sd * 180 / pi;
-            ept_task_wt(k) = 1-weight_opt;
-        else
-            ept_task_sd(k) = std(samples);
-        end
-        
-    end
     % calculate the mean among all subject for the three parameters
-    ept_task_mn = [mean(error_sum)* 180 / pi, mean(pathLength_sum), mean(reachTime_sum)]; 
+    ept_task_mn = mean(ept, 1); 
     % save the std of different tasks
-    ept_sd{end+1} = ept_task_sd;
+    ept_sd{end+1} = std(ept, [], 1);
     % calculate and save the se of different tasks
-    ept_se{end+1} = ept_task_sd/(sqrt(16)); 
+    ept_se{end+1} = std(ept, [], 1)/(sqrt(16)); 
     % save the mean of different tasks
     ept_mn{end+1} = ept_task_mn;
     ept_wt{end+1} = ept_task_wt;
 end
 
 % plot out
-title_ept = {'error of reaching direction','path length of each reach','movement duration of each reach'};
-ylable_ept = {'error (deg)', 'path length (m)', 'movement duration (ms)'};
-figure
+ylabel_ept = {['reach direction error (' char(0176) ')'], 'path length (m)', 'movement duration (ms)'};
+figure(3); clf
 for ept_i = 1:3
-    subplot(3,1,ept_i)
-    hold on
+    subplot(1,3,ept_i); hold on
     error_n_y = [ept_mn{1}(ept_i) ept_mn{5}(ept_i)];
     error_r_y = [ept_mn{2}(ept_i) ept_mn{6}(ept_i)];
     error_c_y = [ept_mn{3}(ept_i) ept_mn{7}(ept_i)];
@@ -167,22 +133,23 @@ for ept_i = 1:3
     errorbar(x3,error_c_y,error_c_err, 'LineWidth', 2)
     errorbar(x4,error_cr_y,error_cr_err, 'LineWidth', 2)
     if ept_i == 1
-        ylim([-8 8])
+        ylim([-8 2])
     elseif ept_i == 2
-        ylim([0 0.2])
+        ylim([0.1 0.2])
     elseif ept_i == 3
-        ylim([0 4000])
+        ylim([1000 4000])
+        legend('Baseline','Mental Rotation','Spatial Working Memory','MR+SWM', 'Location', 'northwest')
     end
-    xlim([0.8 2.5])
-    ylabel(ylable_ept{ept_i})
-    title(title_ept{ept_i})
-    legend('Baseline','Mental Rotation','Spatial Working Memory','MR+SWM')
+    xlim([0.8 2.2])
+    ylabel(ylabel_ept{ept_i})
+%     title(title_ept{ept_i})
     xticks([1 2])
     xticklabels({'average','bimanual'})
     hold off
 end
 
-%% 
+%% plot standard deviation and weight by mental rotation
+
 % figure 5. Alpha and sigma under Average mapping
 e_sigma = [];
 e_alpha = [];
@@ -230,10 +197,12 @@ for j = 1:8
         gB_sub = 'Bimanual';
     end
     for i = 1:16
-        error_sigma_subj = data{1, i}.(t{j}).sd;
+        error.(t{j})(i) = data{i}.(t{j}).sd;
+        
+        error_sigma_subj = data{i}.(t{j}).sd;
         error_sigma_sum = [error_sigma_sum error_sigma_subj];
         e_sigma = [e_sigma error_sigma_subj];
-        error_alpha_subj = data{1, i}.(t{j}).sdwt;
+        error_alpha_subj = data{i}.(t{j}).sdwt;
         error_alpha_sum = [error_alpha_sum error_alpha_subj];
         e_alpha = [e_alpha error_alpha_subj];
         gR{end+1} = gR_sub;
@@ -246,9 +215,8 @@ for j = 1:8
     e_alpha_se = [e_alpha_se std(error_alpha_sum)/sqrt(15)];
 end
 
-figure
-subplot(1,2,1)
-hold on
+figure(4); clf
+subplot(1,2,1); hold on
 sigma_n_mn_a = [e_sigma_mn(1) e_sigma_mn(2)];
 sigma_c_mn_a = [e_sigma_mn(3) e_sigma_mn(4)];
 sigma_n_se_a = [e_sigma_se(1) e_sigma_se(2)];
@@ -257,14 +225,14 @@ x = 1:2;
 errorbar(x,sigma_n_mn_a,sigma_n_se_a, 'LineWidth', 2)
 errorbar(x,sigma_c_mn_a,sigma_c_se_a, 'LineWidth', 2)
 xlim([0.5 2.5]),ylim([0 30])
-ylabel('sigma')
-title('sigma of error on reaching direction (degrees) - Average')
-legend('Baseline','Spatial Working Memory')
+ylabel(['circular standard deviation (' char(0176) ')'])
+title('Average')
+legend('no SWM','SWM','Location','northwest')
 xticks([1 2])
 xticklabels({'Baseline','Mental Rotation'})
 hold off
-subplot(1,2,2)
-hold on
+
+subplot(1,2,2); hold on
 sigma_n_mn_b = [e_sigma_mn(5) e_sigma_mn(6)];
 sigma_c_mn_b = [e_sigma_mn(7) e_sigma_mn(8)];
 sigma_n_se_b = [e_sigma_se(5) e_sigma_se(6)];
@@ -273,16 +241,13 @@ x = 1:2;
 errorbar(x,sigma_n_mn_b,sigma_n_se_b, 'LineWidth', 2)
 errorbar(x,sigma_c_mn_b,sigma_c_se_b, 'LineWidth', 2)
 xlim([0.5 2.5]), ylim([0 30])
-ylabel('sigma')
-title('sigma of error on reaching direction (degrees) - Bimanual')
-legend('Baseline','Spatial Working Memory')
+title('Bimanual')
 xticks([1 2])
 xticklabels({'Baseline','Mental Rotation'})
 hold off
 
-figure
-subplot(1,2,1)
-hold on
+figure(5); clf
+subplot(1,2,1); hold on
 alpha_n_mn_a = [e_alpha_mn(1) e_alpha_mn(2)];
 alpha_c_mn_a = [e_alpha_mn(3) e_alpha_mn(4)];
 alpha_n_se_a = [e_alpha_se(1) e_alpha_se(2)];
@@ -291,14 +256,14 @@ x = 1:2;
 errorbar(x,alpha_n_mn_a,alpha_n_se_a, 'LineWidth', 2)
 errorbar(x,alpha_c_mn_a,alpha_c_se_a, 'LineWidth', 2)
 xlim([0.5 2.5]),ylim([0 0.45])
-ylabel('alpha')
-title('alpha of error on reaching direction - Average')
-legend('Baseline','Spatial Working Memory')
+ylabel('proportion of random reaches')
+title('Average')
+legend('no SWM','SWM','Location','northwest')
 xticks([1 2])
 xticklabels({'Baseline','Mental Rotation'})
 hold off
-subplot(1,2,2)
-hold on
+
+subplot(1,2,2); hold on
 alpha_n_mn_b = [e_alpha_mn(5) e_alpha_mn(6)];
 alpha_c_mn_b = [e_alpha_mn(7) e_alpha_mn(8)];
 alpha_n_se_b = [e_alpha_se(5) e_alpha_se(6)];
@@ -307,15 +272,13 @@ x = 1:2;
 errorbar(x,alpha_n_mn_b,alpha_n_se_b, 'LineWidth', 2)
 errorbar(x,alpha_c_mn_b,alpha_c_se_b, 'LineWidth', 2)
 xlim([0.5 2.5]), ylim([0 0.45])
-ylabel('alpha')
-title('alpha of error on reaching direction - Bimanual')
-legend('Baseline','Spatial Working Memory')
+title('Bimanual')
 xticks([1 2])
 xticklabels({'Baseline','Mental Rotation'})
 hold off
-% figure 7. alpha and sigma of all tasks
-figure
-hold on
+
+%% plot standard deviation and weight by handedness
+figure(6); clf; hold on
 sigma_n_mn = [e_sigma_mn(1) e_sigma_mn(5)];
 sigma_r_mn = [e_sigma_mn(2) e_sigma_mn(6)];
 sigma_c_mn = [e_sigma_mn(3) e_sigma_mn(7)];
@@ -325,20 +288,21 @@ sigma_r_se = [e_sigma_se(2) e_sigma_se(6)];
 sigma_c_se = [e_sigma_se(3) e_sigma_se(7)];
 sigma_cr_se = [e_sigma_se(4) e_sigma_se(8)];
 x1 = [0.97 1.97];x2 = [0.99 1.99];x3 = [1.01 2.01];x4 = [1.03 2.03];
+
+
+
 errorbar(x1,sigma_n_mn,sigma_n_se, 'LineWidth', 2)
 errorbar(x2,sigma_r_mn,sigma_r_se, 'LineWidth', 2)
 errorbar(x3,sigma_c_mn,sigma_c_se, 'LineWidth', 2)
 errorbar(x4,sigma_cr_mn,sigma_cr_se, 'LineWidth', 2)
 xlim([0.5 2.5])
-ylabel('sigma')
-title('sigma of error on reaching direction (degrees)')
+ylabel(['circular standard deviation (' char(0176) ')'])
 legend('Baseline','MR','SWM','SWM+MR')
 xticks([1 2])
 xticklabels({'average','bimanual'})
 hold off
 
-figure
-hold on
+figure(7); clf; hold on
 alpha_n_mn = [e_alpha_mn(1) e_alpha_mn(5)];
 alpha_r_mn = [e_alpha_mn(2) e_alpha_mn(6)];
 alpha_c_mn = [e_alpha_mn(3) e_alpha_mn(7)];
@@ -353,8 +317,7 @@ errorbar(x2,alpha_r_mn,alpha_r_se, 'LineWidth', 2)
 errorbar(x3,alpha_c_mn,alpha_c_se, 'LineWidth', 2)
 errorbar(x4,alpha_cr_mn,alpha_cr_se, 'LineWidth', 2)
 xlim([0.5 2.5])
-ylabel('alpha')
-title('alpha of error on reaching direction')
+ylabel('proportion of random reaches')
 legend('Baseline','MR','SWM','SWM+MR')
 xticks([1 2])
 xticklabels({'average','bimanual'})
@@ -372,6 +335,25 @@ center = [.6 .25];
 for l = 1:length(subj_name) % loop over subjects
     disp(['    ',subj_name{l}])
     for k = 1:8 % loop over tasks
+        
+        if k <= 4
+            hands = 'average';
+        else
+            hands = 'bimanual';
+        end
+        
+        if mod(k,2) == 0
+            mental = 'rotation';
+        else
+            mental = 'no_rotation';
+        end
+        
+        if k == 1 || k == 2 || k == 5 || k == 6
+            corsi = 'no_corsi';
+        else
+            corsi = 'no_corsi';
+        end
+        
         % initialized the direction errors
         error = [];
         r_angle = [];
@@ -476,12 +458,12 @@ for l = 1:length(subj_name) % loop over subjects
                 timeReach = [timeReach reach_time];
             end
             % store variables from each trial in data
-            data{l}.(task_data{k}).trajRaw{j} = trajRaw;
-            data{l}.(task_data{k}).trajFilt{j} = trajFilt;
-            data{l}.(task_data{k}).vel{j} = vel;
-            data{l}.(task_data{k}).answer{j} = answer;
-            data{l}.(task_data{k}).reachPoint{j} = reachPoint;
-            data{l}.(task_data{k}).idealReach{j} = idealReach;
+            data{l}.(hands).(mental).(corsi).trajRaw{j} = trajRaw;
+            data{l}.(hands).(mental).(corsi).trajFilt{j} = trajFilt;
+            data{l}.(hands).(mental).(corsi).vel{j} = vel;
+            data{l}.(hands).(mental).(corsi).answer{j} = answer;
+            data{l}.(hands).(mental).(corsi).reachPoint{j} = reachPoint;
+            data{l}.(hands).(mental).(corsi).idealReach{j} = idealReach;
         end
         
         rng(2);
@@ -522,15 +504,15 @@ for l = 1:length(subj_name) % loop over subjects
             % title(task{k},subj_name{l})
        
         % save variables from across trials in data
-        data{l}.(task_data{k}).error = error; 
-        data{l}.(task_data{k}).variance = var(error * 180 / pi); 
-        data{l}.(task_data{k}).sd = sd_e;
-        data{l}.(task_data{k}).sdwt = wt_sde;
-        data{l}.(task_data{k}).std = std(error * 180 / pi); % standard deviation of error
-        data{l}.(task_data{k}).reachAngle = r_angle;
-        data{l}.(task_data{k}).idealAngle = i_angle;
-        data{l}.(task_data{k}).pathLength = pathLength;
-        data{l}.(task_data{k}).timeReach = timeReach;
+        data{l}.(hands).(mental).(corsi).error = error; 
+        data{l}.(hands).(mental).(corsi).variance = var(error * 180 / pi); 
+        data{l}.(hands).(mental).(corsi).sd = sd_e;
+        data{l}.(hands).(mental).(corsi).sdwt = wt_sde;
+        data{l}.(hands).(mental).(corsi).std = std(error * 180 / pi); % standard deviation of error
+        data{l}.(hands).(mental).(corsi).reachAngle = r_angle;
+        data{l}.(hands).(mental).(corsi).idealAngle = i_angle;
+        data{l}.(hands).(mental).(corsi).pathLength = pathLength;
+        data{l}.(hands).(mental).(corsi).timeReach = timeReach;
     end
 end
 end
