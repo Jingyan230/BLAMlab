@@ -241,3 +241,33 @@ for i = 1:2
         end
     end
 end
+
+%% model comparison by BIC
+
+corsi_bic = data{1}.average.no_rotation.corsi.unif_bic;
+no_corsi_bic = data{1}.average.no_rotation.no_corsi.unif_bic;
+
+figure(1); clf; hold on
+plot([0.5 4.5], [no_corsi_bic no_corsi_bic], 'k')
+plot([4.5 8.5], [corsi_bic corsi_bic], 'k')
+idx = 1;
+for k = 1:2
+    for i = 1:2
+        for j = 1:2
+            % collecting the data from all subj into dataset
+            for m = 1:Nsubj
+                dat = data{m}.(hands{i}).(mental{j}).(corsi{k});
+                vm_bic(m) = dat.vm_bic;
+            end
+            
+            unif_bic = dat.unif_bic;
+            plot(idx, vm_bic, '.r', 'MarkerSize', 10)
+            idx = idx + 1;
+        end
+    end
+end
+t_name2 = {'avg no con task','avg MR','bi MR','bi no con task','avg corsi','avg corsi+MR','bi corsi','bi corsi+MR'};
+xticks(1:8)
+xticklabels(t_name2)
+xtickangle(45)
+ylabel('BIC')

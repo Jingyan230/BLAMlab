@@ -209,17 +209,23 @@ for l = 1:length(subj_name) % loop over subjects
         % fit model
         log_likelihood = @(params) calc_likelihood(params, samples);
         paramsInit = [muInit kappaInit weightInit]; % set parameters to current values of mu and kappa
-        [params_opt,~,~,~,~,~,hessian] = fmincon(log_likelihood, paramsInit, [], [], [], [], [-pi 0 0], [pi 500 1]);
+        [params_opt,neg_log_like,~,~,~,~,hessian] = fmincon(log_likelihood, paramsInit, [], [], [], [], [-pi 0 0], [pi 500 1]);
         
         % store fitted parameter values
         mu_opt = params_opt(1);
         kappa_opt = params_opt(2);
         weight_opt = params_opt(3);
-
+        
         % compute circular standard deviation
         R = besseli(1,kappa_opt)/besseli(0,kappa_opt);
         sd = sqrt(-2 * log(R)) * 180 / pi; % circular standard deviation
         unif_weight = 1-weight_opt;
+        
+        vm_like = -neg_log_like;
+        unif_like = sum(log(ones(length(samples), 1) * 1 / (2 * pi)));
+        
+        vm_bic = length(paramsInit) * log(Ntrials) - 2 * vm_like;
+        unif_bic = -2 * unif_like;
         
         % save variables from across trials in data
         data{l}.(hands).(mental).(corsi).endpoint_error = endpoint_error;
@@ -230,6 +236,8 @@ for l = 1:length(subj_name) % loop over subjects
         data{l}.(hands).(mental).(corsi).kappa = kappa_opt;
         data{l}.(hands).(mental).(corsi).sd = sd;
         data{l}.(hands).(mental).(corsi).unif_weight = unif_weight;
+        data{l}.(hands).(mental).(corsi).vm_bic = vm_bic;
+        data{l}.(hands).(mental).(corsi).unif_bic = unif_bic;
         data{l}.(hands).(mental).(corsi).hessian = hessian;
         data{l}.(hands).(mental).(corsi).endAngle = end_angle;
         data{l}.(hands).(mental).(corsi).targetAngle = target_angle;
