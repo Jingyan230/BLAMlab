@@ -186,11 +186,11 @@ for i = 1:2
 end
 
 figure(4); clf
-subplot(1,2,1); hold on
+subplot(2,1,1); hold on
 for i = 1:4
     plot(2*(i-1)+1:2*(i-1)+2, sd_test(:,[i i+4])', '.', 'MarkerSize', 15, 'Color', col(i,:), 'HandleVisibility', 'off')
     plot(2*(i-1)+1:2*(i-1)+2, sd_test(:,[i i+4])', 'Color', col(i,:), 'HandleVisibility', 'off')
-    plot(2*(i-1)+1:2*(i-1)+2, mean(sd_test(:,[i i+4]), 1, 'omitnan'), '-o', 'Color', col(i,:), 'MarkerFaceColor', col(i,:), 'MarkerSize', 8, 'LineWidth', 3)
+    plot(2*(i-1)+1:2*(i-1)+2, mean(sd_test(:,[i i+4]), 1, 'omitnan'), '-ko', 'MarkerFaceColor', col(i,:), 'MarkerSize', 8, 'LineWidth', 1)
 end
 xlim([0.5 8.5])
 xticks(1:8)
@@ -198,16 +198,18 @@ xticklabels({'Average','Bimanual','Average','Bimanual','Average','Bimanual','Ave
 ylabel('Circular standard deviation')
 legend({'No dual task','Corsi','MR','Corsi+MR'},'Location','northwest')
 
-subplot(1,2,2); hold on
+subplot(2,1,2); hold on
 for i = 1:4
     plot(2*(i-1)+1:2*(i-1)+2, 1 - vm_wt_test(:,[i i+4])', '.', 'MarkerSize', 15, 'Color', col(i,:), 'HandleVisibility', 'off')
     plot(2*(i-1)+1:2*(i-1)+2, 1 - vm_wt_test(:,[i i+4])', 'Color', col(i,:), 'HandleVisibility', 'off')
-    plot(2*(i-1)+1:2*(i-1)+2, 1 - mean(vm_wt_test(:,[i i+4]), 1, 'omitnan'), '-o', 'Color', col(i,:), 'MarkerFaceColor', col(i,:), 'MarkerSize', 8, 'LineWidth', 3)
+    plot(2*(i-1)+1:2*(i-1)+2, 1 - mean(vm_wt_test(:,[i i+4]), 1, 'omitnan'), '-ko', 'MarkerFaceColor', col(i,:), 'MarkerSize', 8, 'LineWidth', 1)
 end
 xlim([0.5 8.5])
 xticks(1:8)
 xticklabels({'Average','Bimanual','Average','Bimanual','Average','Bimanual','Average','Bimanual'})
 ylabel('Proportion of random reaches')
+
+print('C:\Users\Chris\Dropbox\Conferences\SFN 2022\model_initDir','-dpdf','-painters')
 
 %% check model fits for each subject
 
@@ -247,7 +249,7 @@ end
 corsi_bic = data{1}.average.no_rotation.corsi.unif_bic;
 no_corsi_bic = data{1}.average.no_rotation.no_corsi.unif_bic;
 
-figure(1); clf; hold on
+figure(6); clf; hold on
 plot([0.5 4.5], [no_corsi_bic no_corsi_bic], 'k')
 plot([4.5 8.5], [corsi_bic corsi_bic], 'k')
 idx = 1;

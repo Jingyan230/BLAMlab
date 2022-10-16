@@ -19,7 +19,7 @@ subj_name = {'subj03','subj04','subj05','subj06','subj07','subj08','subj09','sub
 data = loadDataR(folder,subj_name);
 toc
 
-% save data data
+save data data
 % load data
 
 col = lines;

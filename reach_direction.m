@@ -139,6 +139,7 @@ for i = 1:2
     end
 end
 
+print('C:\Users\Chris\Dropbox\Conferences\SFN 2022\heatmap','-dpdf','-painters')
 %% collect kinematic data into separate variables
 
 clear endError_all initError_all pathLength_all reachTime_all
