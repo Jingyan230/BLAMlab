@@ -58,6 +58,65 @@ xticklabels({'Average','Bimanual','Average','Bimanual','Average','Bimanual','Ave
 xtickangle(45)
 ylabel('Proportion of random reaches')
 
+%%
+rot(1:32,1) = "no_rot";
+rot(33:64,1) = "rot";
+cor([1:16 33:48], 1) = "no_corsi";
+cor([17:32 49:64], 1) = "corsi";
+subject = repmat((1:16)', [4 1]);
+
+y = [sd_all.average.no_rotation.no_corsi'; sd_all.average.no_rotation.corsi';
+    sd_all.average.rotation.no_corsi'; sd_all.average.rotation.corsi'];
+T = table(rot, cor, subject, y, 'VariableNames', {'rotation','corsi','subject','sd'});
+writetable(T,'C:/Users/Chris/Documents/R/corsirotation/data/sd1.csv')
+
+%%
+
+map(1:32,1) = "average";
+map(33:64,1) = "bimanual";
+cor([1:16 33:48], 1) = "no_corsi";
+cor([17:32 49:64], 1) = "corsi";
+subject = repmat((1:16)', [4 1]);
+
+y = [sd_all.average.no_rotation.no_corsi'; sd_all.average.no_rotation.corsi';
+    sd_all.bimanual.no_rotation.no_corsi'; sd_all.bimanual.no_rotation.corsi'];
+T = table(map, cor, subject, y, 'VariableNames', {'mapping','corsi','subject','sd'});
+writetable(T,'C:/Users/Chris/Documents/R/corsirotation/data/sd2.csv')
+
+%%
+
+map(1:32,1) = "average";
+map(33:64,1) = "bimanual";
+rot([1:16 33:48], 1) = "no_rotation";
+rot([17:32 49:64], 1) = "rotation";
+subject = repmat((1:16)', [4 1]);
+
+y = [sd_all.average.no_rotation.no_corsi'; sd_all.average.rotation.no_corsi';
+    sd_all.bimanual.no_rotation.no_corsi'; sd_all.bimanual.rotation.no_corsi'];
+T = table(map, rot, subject, y, 'VariableNames', {'mapping','rotation','subject','sd'});
+writetable(T,'C:/Users/Chris/Documents/R/corsirotation/data/sd3.csv')
+%% 
+figure(10); clf; hold on
+plot(1, sd_all.bimanual.no_rotation.no_corsi, '.k')
+plot(2, sd_all.average.rotation.no_corsi, '.k')
+plot(3, sd_all.bimanual.rotation.no_corsi, '.k')
+
+plot(5, sd_all.bimanual.no_rotation.no_corsi, '.k')
+plot(6, sd_all.average.no_rotation.corsi, '.k')
+plot(7, sd_all.bimanual.no_rotation.corsi, '.k')
+
+plot(9, sd_all.average.rotation.no_corsi, '.k')
+plot(10, sd_all.average.no_rotation.corsi, '.k')
+plot(11, sd_all.average.rotation.corsi, '.k')
+
+% plot(1, sd_all.average.rotation.no_corsi, '.k')
+% plot(2, sd_all.average.no_rotation.corsi, '.k')
+% plot(3, sd_all.bimanual.no_rotation.no_corsi, '.k')
+% 
+% plot(5, sd_all.bimanual.rotation.no_corsi, '.k')
+% plot(6, sd_all.bimanual.no_rotation.corsi, '.k')
+% plot(7, sd_all.average.rotation.corsi, '.k')
+
 %% model fits plotted by mental rotation condition
 
 figure(2); clf
